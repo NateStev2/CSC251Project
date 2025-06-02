@@ -1,56 +1,119 @@
+import java.util.Scanner; // Import the Scanner class for user input
+import java.text.DecimalFormat; // Import DecimalFormat for formatting output
+
+// The main public class for the application
 public class Project_Nathaniel_Stevens {
 
-    // --- Attributes (Instance Variables) ---
+    public static void main(String[] args) {
+        // Create a Scanner object to read user input
+        Scanner scanner = new Scanner(System.in);
+
+        // Create a DecimalFormat object to format numbers to two decimal places
+        DecimalFormat df = new DecimalFormat("0.00");
+
+        // --- Prompt for Policy Details ---
+        System.out.print("Please enter the Policy Number: ");
+        String policyNumber = scanner.nextLine();
+
+        System.out.print("Please enter the Provider Name: ");
+        String providerName = scanner.nextLine();
+
+        System.out.print("Please enter the Policyholder’s First Name: ");
+        String firstName = scanner.nextLine();
+
+        System.out.print("Please enter the Policyholder’s Last Name: ");
+        String lastName = scanner.nextLine();
+
+        System.out.print("Please enter the Policyholder’s Age: ");
+        int age = scanner.nextInt();
+        scanner.nextLine(); // Consume the newline character left by nextInt()
+
+        System.out.print("Please enter the Policyholder’s Smoking Status (smoker/non-smoker): ");
+        String smokingStatus = scanner.nextLine();
+
+        System.out.print("Please enter the Policyholder’s Height (in inches): ");
+        double height = scanner.nextDouble();
+        scanner.nextLine(); // Consume the newline character
+
+        System.out.print("Please enter the Policyholder’s Weight (in pounds): ");
+        double weight = scanner.nextDouble();
+        scanner.nextLine(); // Consume the newline character
+
+        // Close the scanner to prevent resource leaks
+        scanner.close();
+
+        // --- Create a Policy object using the collected data ---
+        Policy policy = new Policy(policyNumber, providerName, firstName,
+                                   lastName, age, smokingStatus,
+                                   height, weight);
+
+        // --- Display Policy Details and Calculated Values ---
+        System.out.println("\nPolicy Number: " + policy.getPolicyNumber());
+        System.out.println("Provider Name: " + policy.getProviderName());
+        System.out.println("Policyholder’s First Name: " + policy.getFirstName());
+        System.out.println("Policyholder’s Last Name: " + policy.getLastName());
+        System.out.println("Policyholder’s Age: " + policy.getAge());
+        System.out.println("Policyholder’s Smoking Status: " + policy.getSmokingStatus());
+        System.out.println("Policyholder’s Height: " + df.format(policy.getHeight()) + " inches");
+        System.out.println("Policyholder’s Weight: " + df.format(policy.getWeight()) + " pounds");
+
+        // Calculate and display BMI and Policy Price
+        System.out.println("Policyholder’s BMI: " + df.format(policy.calculateBMI()));
+        System.out.println("Policy Price: $" + df.format(policy.calculatePolicyPrice()));
+    }
+}
+
+// The Policy class, now nested within the same file.
+// It is no longer public as only one public class is allowed per .java file.
+class Policy {
+    // Attributes of the insurance policy
     private String policyNumber;
     private String providerName;
-    private String policyholderFirstName;
-    private String policyholderLastName;
-    private int policyholderAge;
+    private String firstName;
+    private String lastName;
+    private int age;
     private String smokingStatus; // "smoker" or "non-smoker"
-    private double policyholderHeight; // in inches
-    private double policyholderWeight; // in pounds
-
-    // --- Constructors ---
+    private double height;        // in inches
+    private double weight;        // in pounds
 
     /**
-     * No-arg constructor.
+     * No-argument constructor for the Policy class.
      * Sets default values for all policy attributes.
      */
     public Policy() {
         this.policyNumber = "N/A";
         this.providerName = "N/A";
-        this.policyholderFirstName = "N/A";
-        this.policyholderLastName = "N/A";
-        this.policyholderAge = 0;
-        this.smokingStatus = "non-smoker"; // Default to non-smoker
-        this.policyholderHeight = 0.0;
-        this.policyholderWeight = 0.0;
+        this.firstName = "N/A";
+        this.lastName = "N/A";
+        this.age = 0;
+        this.smokingStatus = "non-smoker";
+        this.height = 0.0;
+        this.weight = 0.0;
     }
 
     /**
-     * Parameterized constructor.
-     * Initializes all policy attributes with the provided arguments.
+     * Constructor for the Policy class that accepts arguments for all attributes.
      *
-     * @param policyNumber The unique policy number.
-     * @param providerName The name of the insurance provider.
-     * @param policyholderFirstName The first name of the policyholder.
-     * @param policyholderLastName The last name of the policyholder.
-     * @param policyholderAge The age of the policyholder.
-     * @param smokingStatus The smoking status of the policyholder ("smoker" or "non-smoker").
-     * @param policyholderHeight The height of the policyholder in inches.
-     * @param policyholderWeight The weight of the policyholder in pounds.
+     * @param policyNumber    The unique policy number.
+     * @param providerName    The name of the insurance provider.
+     * @param firstName       The policyholder's first name.
+     * @param lastName        The policyholder's last name.
+     * @param age             The policyholder's age.
+     * @param smokingStatus   The policyholder's smoking status ("smoker" or "non-smoker").
+     * @param height          The policyholder's height in inches.
+     * @param weight          The policyholder's weight in pounds.
      */
-    public Policy(String policyNumber, String providerName, String policyholderFirstName,
-                  String policyholderLastName, int policyholderAge, String smokingStatus,
-                  double policyholderHeight, double policyholderWeight) {
+    public Policy(String policyNumber, String providerName, String firstName,
+                  String lastName, int age, String smokingStatus,
+                  double height, double weight) {
         this.policyNumber = policyNumber;
         this.providerName = providerName;
-        this.policyholderFirstName = policyholderFirstName;
-        this.policyholderLastName = policyholderLastName;
-        this.policyholderAge = policyholderAge;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.age = age;
         this.smokingStatus = smokingStatus;
-        this.policyholderHeight = policyholderHeight;
-        this.policyholderWeight = policyholderWeight;
+        this.height = height;
+        this.weight = weight;
     }
 
     // --- Accessor (Getter) Methods ---
@@ -75,24 +138,24 @@ public class Project_Nathaniel_Stevens {
      * Retrieves the policyholder's first name.
      * @return The policyholder's first name.
      */
-    public String getPolicyholderFirstName() {
-        return policyholderFirstName;
+    public String getFirstName() {
+        return firstName;
     }
 
     /**
      * Retrieves the policyholder's last name.
      * @return The policyholder's last name.
      */
-    public String getPolicyholderLastName() {
-        return policyholderLastName;
+    public String getLastName() {
+        return lastName;
     }
 
     /**
      * Retrieves the policyholder's age.
      * @return The policyholder's age.
      */
-    public int getPolicyholderAge() {
-        return policyholderAge;
+    public int getAge() {
+        return age;
     }
 
     /**
@@ -107,16 +170,16 @@ public class Project_Nathaniel_Stevens {
      * Retrieves the policyholder's height.
      * @return The policyholder's height in inches.
      */
-    public double getPolicyholderHeight() {
-        return policyholderHeight;
+    public double getHeight() {
+        return height;
     }
 
     /**
      * Retrieves the policyholder's weight.
      * @return The policyholder's weight in pounds.
      */
-    public double getPolicyholderWeight() {
-        return policyholderWeight;
+    public double getWeight() {
+        return weight;
     }
 
     // --- Mutator (Setter) Methods ---
@@ -139,26 +202,26 @@ public class Project_Nathaniel_Stevens {
 
     /**
      * Sets the policyholder's first name.
-     * @param policyholderFirstName The new first name.
+     * @param firstName The new first name.
      */
-    public void setPolicyholderFirstName(String policyholderFirstName) {
-        this.policyholderFirstName = policyholderFirstName;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
     /**
      * Sets the policyholder's last name.
-     * @param policyholderLastName The new last name.
+     * @param lastName The new last name.
      */
-    public void setPolicyholderLastName(String policyholderLastName) {
-        this.policyholderLastName = policyholderLastName;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     /**
      * Sets the policyholder's age.
-     * @param policyholderAge The new age.
+     * @param age The new age.
      */
-    public void setPolicyholderAge(int policyholderAge) {
-        this.policyholderAge = policyholderAge;
+    public void setAge(int age) {
+        this.age = age;
     }
 
     /**
@@ -171,18 +234,18 @@ public class Project_Nathaniel_Stevens {
 
     /**
      * Sets the policyholder's height.
-     * @param policyholderHeight The new height in inches.
+     * @param height The new height in inches.
      */
-    public void setPolicyholderHeight(double policyholderHeight) {
-        this.policyholderHeight = policyholderHeight;
+    public void setHeight(double height) {
+        this.height = height;
     }
 
     /**
      * Sets the policyholder's weight.
-     * @param policyholderWeight The new weight in pounds.
+     * @param weight The new weight in pounds.
      */
-    public void setPolicyholderWeight(double policyholderWeight) {
-        this.policyholderWeight = policyholderWeight;
+    public void setWeight(double weight) {
+        this.weight = weight;
     }
 
     // --- Calculation Methods ---
@@ -194,43 +257,39 @@ public class Project_Nathaniel_Stevens {
      * @return The calculated BMI.
      */
     public double calculateBMI() {
-        // Ensure height is not zero to avoid division by zero
-        if (policyholderHeight <= 0) {
+        // Ensure height is not zero to prevent division by zero
+        if (height == 0) {
             return 0.0; // Or throw an IllegalArgumentException
         }
-        return (policyholderWeight * 703) / (policyholderHeight * policyholderHeight);
+        return (weight * 703) / (height * height);
     }
 
     /**
      * Calculates and returns the total price of the insurance policy.
-     * The price is based on a base fee and additional fees for age, smoking status, and BMI.
+     * The price is based on a base fee and additional fees for age,
+     * smoking status, and BMI.
      *
-     * Base Fee: $600
-     * Age Fee: +$75 if policyholder is over 50 years old.
-     * Smoking Fee: +$100 if policyholder is a smoker.
-     * BMI Fee: +(BMI - 35) * 20 if BMI is over 35.
-     *
-     * @return The total calculated insurance policy price.
+     * @return The calculated policy price.
      */
-    public double calculateInsurancePrice() {
-        double price = 600.0; // Base fee
+    public double calculatePolicyPrice() {
+        double policyPrice = 600.0; // Base fee
 
         // Additional fee for age
-        if (policyholderAge > 50) {
-            price += 75.0;
+        if (age > 50) {
+            policyPrice += 75.0;
         }
 
-        // Additional fee for smoking status
+        // Additional fee for smoking status (case-insensitive check)
         if (smokingStatus.equalsIgnoreCase("smoker")) {
-            price += 100.0;
+            policyPrice += 100.0;
         }
 
         // Additional fee for BMI
-        double bmi = calculateBMI(); // Always calculate fresh BMI to avoid stale data
+        double bmi = calculateBMI(); // Get the current BMI
         if (bmi > 35) {
-            price += (bmi - 35) * 20.0;
+            policyPrice += (bmi - 35) * 20;
         }
 
-        return price;
+        return policyPrice;
     }
 }
