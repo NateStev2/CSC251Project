@@ -1,70 +1,120 @@
-import java.util.Scanner; // Import the Scanner class for user input
+import java.io.File; // Import the File class for file operations
+import java.io.FileNotFoundException; // Import this to handle file not found errors
+import java.util.ArrayList; // Import ArrayList to store Policy objects dynamically
+import java.util.List; // Import List interface
+import java.util.Scanner; // Import the Scanner class for reading from file
 import java.text.DecimalFormat; // Import DecimalFormat for formatting output
 
-// The main public class for the application
+/**
+ * The main public class for the insurance policy application.
+ * This class reads policy information from a text file, creates Policy objects,
+ * stores them, and then displays details and calculated statistics.
+ */
 public class Project2_Nathaniel_Stevens {
 
     public static void main(String[] args) {
-        // Create a Scanner object to read user input
-        Scanner scanner = new Scanner(System.in);
-
         // Create a DecimalFormat object to format numbers to two decimal places
         DecimalFormat df = new DecimalFormat("0.00");
 
-        // --- Prompt for Policy Details ---
-        System.out.print("Please enter the Policy Number: ");
-        String policyNumber = scanner.nextLine();
+        // Use a List to store Policy objects. ArrayList is chosen for its dynamic size.
+        List<Policy> policyList = new ArrayList<>();
 
-        System.out.print("Please enter the Provider Name: ");
-        String providerName = scanner.nextLine();
+        // Define the name of the input file
+        String fileName = "PolicyInformation.txt";
 
-        System.out.print("Please enter the Policyholder’s First Name: ");
-        String firstName = scanner.nextLine();
+        // Try-with-resources statement to ensure the Scanner is closed automatically
+        try (Scanner fileScanner = new Scanner(new File(fileName))) {
+            // Loop as long as there are more lines in the file
+            while (fileScanner.hasNextLine()) {
+                // Read all 8 pieces of information for one policy
+                String policyNumber = fileScanner.nextLine();
+                String providerName = fileScanner.nextLine();
+                String firstName = fileScanner.nextLine();
+                String lastName = fileScanner.nextLine();
+                int age = Integer.parseInt(fileScanner.nextLine()); // Convert String to int
+                String smokingStatus = fileScanner.nextLine();
+                double height = Double.parseDouble(fileScanner.nextLine()); // Convert String to double
+                double weight = Double.parseDouble(fileScanner.nextLine()); // Convert String to double
 
-        System.out.print("Please enter the Policyholder’s Last Name: ");
-        String lastName = scanner.nextLine();
+                // Create a Policy object with the read data
+                Policy policy = new Policy(policyNumber, providerName, firstName,
+                                           lastName, age, smokingStatus,
+                                           height, weight);
 
-        System.out.print("Please enter the Policyholder’s Age: ");
-        int age = scanner.nextInt();
-        scanner.nextLine(); // Consume the newline character left by nextInt()
+                // Add the created Policy object to the list
+                policyList.add(policy);
+            }
+        } catch (FileNotFoundException e) {
+            // Handle the case where the specified file does not exist
+            System.out.println("Error: The file '" + fileName + "' was not found.");
+            System.out.println("Please make sure the file is in the same directory as the program.");
+            return; // Exit the program if the file is not found
+        } catch (NumberFormatException e) {
+            // Handle cases where age, height, or weight cannot be parsed to numbers
+            System.out.println("Error reading data from file: Invalid number format encountered.");
+            System.out.println("Please check the data types in your PolicyInformation.txt file.");
+            return; // Exit if there's a parsing error
+        }
 
-        System.out.print("Please enter the Policyholder’s Smoking Status (smoker/non-smoker): ");
-        String smokingStatus = scanner.nextLine();
+        // --- Display Policy Details and Calculated Values for each policy ---
+        System.out.println("--- Insurance Policy Details ---");
+        System.out.println("Total Policies Loaded: " + policyList.size() + "\n");
 
-        System.out.print("Please enter the Policyholder’s Height (in inches): ");
-        double height = scanner.nextDouble();
-        scanner.nextLine(); // Consume the newline character
+        int smokerCount = 0;
+        int nonSmokerCount = 0;
+        double totalAge = 0;
+        double totalBMI = 0;
+        double totalPolicyPrice = 0;
 
-        System.out.print("Please enter the Policyholder’s Weight (in pounds): ");
-        double weight = scanner.nextDouble();
-        scanner.nextLine(); // Consume the newline character
+        // Iterate through the list of policies and display their details
+        for (Policy policy : policyList) {
+            System.out.println("Policy Number: " + policy.getPolicyNumber());
+            System.out.println("Provider Name: " + policy.getProviderName());
+            System.out.println("Policyholder’s First Name: " + policy.getFirstName());
+            System.out.println("Policyholder’s Last Name: " + policy.getLastName());
+            System.out.println("Policyholder’s Age: " + policy.getAge());
+            System.out.println("Policyholder’s Smoking Status: " + policy.getSmokingStatus());
+            System.out.println("Policyholder’s Height: " + df.format(policy.getHeight()) + " inches");
+            System.out.println("Policyholder’s Weight: " + df.format(policy.getWeight()) + " pounds");
 
-        // Close the scanner to prevent resource leaks
-        scanner.close();
+            // Calculate and display BMI and Policy Price for the current policy
+            double currentBMI = policy.calculateBMI();
+            double currentPolicyPrice = policy.calculatePolicyPrice();
+            System.out.println("Policyholder’s BMI: " + df.format(currentBMI));
+            System.out.println("Policy Price: $" + df.format(currentPolicyPrice));
+            System.out.println("-------------------------------------");
 
-        // --- Create a Policy object using the collected data ---
-        Policy policy = new Policy(policyNumber, providerName, firstName,
-                                   lastName, age, smokingStatus,
-                                   height, weight);
+            // Accumulate data for statistics
+            if (policy.getSmokingStatus().equalsIgnoreCase("smoker")) {
+                smokerCount++;
+            } else {
+                nonSmokerCount++;
+            }
+            totalAge += policy.getAge();
+            totalBMI += currentBMI;
+            totalPolicyPrice += currentPolicyPrice;
+        }
 
-        // --- Display Policy Details and Calculated Values ---
-        System.out.println("\nPolicy Number: " + policy.getPolicyNumber());
-        System.out.println("Provider Name: " + policy.getProviderName());
-        System.out.println("Policyholder’s First Name: " + policy.getFirstName());
-        System.out.println("Policyholder’s Last Name: " + policy.getLastName());
-        System.out.println("Policyholder’s Age: " + policy.getAge());
-        System.out.println("Policyholder’s Smoking Status: " + policy.getSmokingStatus());
-        System.out.println("Policyholder’s Height: " + df.format(policy.getHeight()) + " inches");
-        System.out.println("Policyholder’s Weight: " + df.format(policy.getWeight()) + " pounds");
+        // --- Display Statistics ---
+        System.out.println("\n--- Policy Statistics ---");
+        System.out.println("Number of Policyholders who are smokers: " + smokerCount);
+        System.out.println("Number of Policyholders who are non-smokers: " + nonSmokerCount);
 
-        // Calculate and display BMI and Policy Price
-        System.out.println("Policyholder’s BMI: " + df.format(policy.calculateBMI()));
-        System.out.println("Policy Price: $" + df.format(policy.calculatePolicyPrice()));
+        // Calculate and display averages, handling division by zero if list is empty
+        if (!policyList.isEmpty()) {
+            System.out.println("Average age of all Policyholders: " + df.format(totalAge / policyList.size()));
+            System.out.println("Average BMI of all Policyholders: " + df.format(totalBMI / policyList.size()));
+            System.out.println("Average Policy Price: $" + df.format(totalPolicyPrice / policyList.size()));
+        } else {
+            System.out.println("No policies loaded to calculate averages.");
+        }
     }
 }
 
-// The Policy class, now nested within the same file.
-// It is no longer public as only one public class is allowed per .java file.
+/**
+ * The Policy class represents an insurance policy with details about the policy
+ * and the policyholder. It includes methods for calculating BMI and policy price.
+ */
 class Policy {
     // Attributes of the insurance policy
     private String policyNumber;
